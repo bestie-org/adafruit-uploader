@@ -70,12 +70,16 @@ export class WebSerialAdapter {
     this.writer = this.port.writable.getWriter();
 
     if (useDtrReset) {
-      // Toggle DTR to reset the board and enter DFU mode
-      await this._setDtr(false);
-      await this._sleep(50);
-      await this._setDtr(true);
-      // Wait for device to boot into DFU mode
-      await this._sleep(1500);
+      try {
+        // Toggle DTR to reset the board and enter DFU mode
+        await this._setDtr(false);
+        await this._sleep(50);
+        await this._setDtr(true);
+        // Wait for device to boot into DFU mode
+        await this._sleep(1500);
+      } catch (err) {
+        console.warn('DTR toggle not supported by this device. Assuming DFU mode already active.');
+      }
     }
   }
 

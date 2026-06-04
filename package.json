@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node src/cli.js",
-    "test": "node src/test-crc16.js"
+    "test": "node src/test-protocol.js",
+    "serve": "node src/server.js"
   },
   "keywords": [
     "nrf52",

@@ -28,8 +28,8 @@ const MIME = {
 };
 
 const server = http.createServer((req, res) => {
-  // Map / → /www/index.html; everything else relative to project root
-  let p = req.url === '/' ? '/www/index.html' : req.url;
+  // Map / → /index.html; everything else relative to project root
+  let p = req.url === '/' ? '/index.html' : req.url;
   // Strip query string
   p = p.split('?')[0];
   const filePath = path.join(__dirname, p);

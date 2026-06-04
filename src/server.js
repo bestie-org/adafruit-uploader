@@ -15,6 +15,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// server.js lives in src/, serve from project root (one level up)
+const ROOT = path.resolve(__dirname, '..');
 const PORT = 3000;
 
 const MIME = {
@@ -32,7 +34,7 @@ const server = http.createServer((req, res) => {
   let p = req.url === '/' ? '/index.html' : req.url;
   // Strip query string
   p = p.split('?')[0];
-  const filePath = path.join(__dirname, p);
+  const filePath = path.join(ROOT, p);
   const ext = path.extname(filePath);
 
   fs.readFile(filePath, (err, data) => {

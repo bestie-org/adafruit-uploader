@@ -1,0 +1,5 @@
+node_modules/
+*.hex
+*.bin
+*.dat
+package-lock.json

@@ -1,0 +1,28 @@
+{
+  "name": "nrf52-dfu-web-update",
+  "version": "1.0.0",
+  "description": "JavaScript nRF52 serial DFU library — ported from Adafruit_nRF52_nrfutil",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "nrf52-dfu": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node src/test-crc16.js"
+  },
+  "keywords": [
+    "nrf52",
+    "nrf52840",
+    "dfu",
+    "serial",
+    "bootloader",
+    "adafruit",
+    "web-serial"
+  ],
+  "dependencies": {
+    "serialport": "^12.0.0"
+  },
+  "devDependencies": {},
+  "license": "BSD-3-Clause"
+}

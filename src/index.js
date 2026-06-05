@@ -41,10 +41,17 @@ export {
 export {
   parseHex,
   extractBinaryFromHex,
+  extractRegionBinary,
   loadFirmware,
   HexError,
   HexRecordError,
   HexChecksumError,
 } from './intelhex.js';
+export {
+  analyzeHex,
+  analyzeHexString,
+  HexAnalysis,
+  SOFTDEVICE_NAMES,
+} from './hex-analyzer.js';
 export { NodeSerialAdapter } from './node-serial-adapter.js';
 export { WebSerialAdapter } from './web-serial-adapter.js';

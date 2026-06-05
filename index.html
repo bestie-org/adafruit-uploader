@@ -7,7 +7,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-         background: #f5f5f5; color: #333; max-width: 640px; margin: 0 auto; padding: 20px; }
+         background: #f5f5f5; color: #333; max-width: 700px; margin: 0 auto; padding: 20px; }
   h1 { font-size: 1.4rem; margin-bottom: 4px; }
   p.subtitle { color: #666; font-size: 0.85rem; margin-bottom: 20px; }
   .card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px;
@@ -23,14 +23,22 @@
   .btn-success:hover:not(:disabled) { background: #25a89c; }
   .btn-danger { background: #e63946; color: #fff; }
   .btn-danger:hover:not(:disabled) { background: #c92f3b; }
+  .btn-outline { background: transparent; color: #4361ee; border: 1.5px solid #4361ee; }
+  .btn-outline:hover:not(:disabled) { background: #eef0ff; }
+  .btn-sm { padding: 4px 12px; font-size: 0.8rem; }
   input[type="file"] { font-size: 0.85rem; }
+  select { font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; }
+  label { font-size: 0.85rem; font-weight: 500; display: block; margin-bottom: 4px; }
+  .file-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .file-row label { min-width: 110px; margin-bottom: 0; }
   .status { margin-top: 10px; padding: 10px; border-radius: 6px; font-size: 0.85rem;
             font-family: 'SF Mono', 'Fira Code', monospace; white-space: pre-wrap;
-            max-height: 200px; overflow-y: auto; background: #fafafa; border: 1px solid #eee; }
+            max-height: 250px; overflow-y: auto; background: #fafafa; border: 1px solid #eee; }
   .status .info { color: #4361ee; }
   .status .ok { color: #2ec4b6; }
   .status .err { color: #e63946; }
   .status .warn { color: #f77f00; }
+  .status .debug { color: #888; font-size: 0.75rem; }
   .bar { height: 6px; background: #e0e0e0; border-radius: 3px; margin-top: 8px; overflow: hidden; }
   .bar-fill { height: 100%; width: 0%; background: #4361ee; border-radius: 3px;
               transition: width .3s ease; }
@@ -38,7 +46,19 @@
            font-weight: 600; }
   .badge-ok { background: #d4edda; color: #155724; }
   .badge-warn { background: #fff3cd; color: #856404; }
-  #fileInfo { font-size: 0.8rem; color: #666; margin-top: 4px; }
+  .badge-info { background: #cce5ff; color: #004085; }
+  #fileInfo, #analysisInfo { font-size: 0.8rem; color: #555; margin-top: 4px; line-height: 1.4; }
+  .mode-toggle { display: flex; gap: 0; margin-bottom: 12px; }
+  .mode-toggle button { flex: 1; border-radius: 0; font-size: 0.85rem; padding: 6px; }
+  .mode-toggle button:first-child { border-radius: 6px 0 0 6px; }
+  .mode-toggle button:last-child { border-radius: 0 6px 6px 0; }
+  .mode-toggle button.active { background: #4361ee; color: #fff; border-color: #4361ee; }
+  .mode-toggle button:not(.active) { background: #f0f0f0; color: #666; border: 1px solid #ccc; }
+  .mode-toggle button:not(.active):hover { background: #e0e0e0; }
+  .hidden { display: none !important; }
+  .analysis-summary { padding: 8px 12px; background: #f0f7ff; border-radius: 6px; border: 1px solid #cce5ff; margin-top: 8px; }
+  .analysis-summary .row-label { font-weight: 600; display: inline-block; min-width: 40px; }
+  .mcu-select { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -56,8 +76,49 @@
 
 <div class="card">
   <h2>2. Select Firmware</h2>
-  <input type="file" id="fileInput" accept=".hex,.bin">
-  <div id="fileInfo">No file selected</div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button id="modeSingle" class="active">Single .hex (auto-detect)</button>
+    <button id="modeMulti">3-file mode</button>
+  </div>
+
+  <!-- Single .hex mode -->
+  <div id="singleModePanel">
+    <div class="file-row">
+      <label for="fileInput">Firmware (.hex/.bin):</label>
+      <input type="file" id="fileInput" accept=".hex,.bin">
+    </div>
+    <div id="fileInfo">No file selected</div>
+    <div id="analysisInfo"></div>
+  </div>
+
+  <!-- 3-file mode -->
+  <div id="multiModePanel" class="hidden">
+    <div class="file-row">
+      <label for="sdInput">SoftDevice (.hex):</label>
+      <input type="file" id="sdInput" accept=".hex,.bin">
+    </div>
+    <div class="file-row">
+      <label for="blInput">Bootloader (.hex):</label>
+      <input type="file" id="blInput" accept=".hex,.bin">
+    </div>
+    <div class="file-row">
+      <label for="appInput">Application (.hex):</label>
+      <input type="file" id="appInput" accept=".hex,.bin">
+    </div>
+    <div id="multiFileInfo" style="font-size:0.8rem;color:#555;margin-top:4px;"></div>
+  </div>
+
+  <!-- MCU Model -->
+  <div class="mcu-select">
+    <label for="mcuSelect">MCU Model:</label>
+    <select id="mcuSelect">
+      <option value="52840" selected>nRF52840 (auto)</option>
+      <option value="52833">nRF52833</option>
+    </select>
+    <span id="mcuAutoHint" style="font-size:0.75rem;color:#888;margin-left:8px;">(auto-detected from .hex)</span>
+  </div>
 </div>
 
 <div class="card">
@@ -72,8 +133,12 @@
 <script type="module">
 // ---------- imports from codebase ----------
 import { WebSerialAdapter } from './src/web-serial-adapter.js';
-import { DfuTransportSerial, DfuEvent, DFU_UPDATE_MODE_APP } from './src/dfu-transport-serial.js';
-import { parseHex, extractBinaryFromHex } from './src/intelhex.js';
+import {
+  DfuTransportSerial, DfuEvent,
+  DFU_UPDATE_MODE_SD, DFU_UPDATE_MODE_BL, DFU_UPDATE_MODE_APP,
+} from './src/dfu-transport-serial.js';
+import { parseHex, extractBinaryFromHex, extractRegionBinary } from './src/intelhex.js';
+import { analyzeHex } from './src/hex-analyzer.js';
 import { generateMinimalInitPacket } from './src/init-packet.js';
 
 // ---------- DOM refs ----------
@@ -82,15 +147,36 @@ const btnConnect    = $('btnConnect');
 const connectStatus = $('connectStatus');
 const fileInput     = $('fileInput');
 const fileInfo      = $('fileInfo');
+const analysisInfo  = $('analysisInfo');
 const btnUpload     = $('btnUpload');
 const progressFill  = $('progressFill');
 const statusLog     = $('statusLog');
+const modeSingle    = $('modeSingle');
+const modeMulti     = $('modeMulti');
+const singlePanel   = $('singleModePanel');
+const multiPanel    = $('multiModePanel');
+const sdInput       = $('sdInput');
+const blInput       = $('blInput');
+const appInput      = $('appInput');
+const multiFileInfo = $('multiFileInfo');
+const mcuSelect     = $('mcuSelect');
+const mcuAutoHint   = $('mcuAutoHint');
 
 let adapter = null;
 let transport = null;
-let firmwareBinary = null;
-let firmwareName = '';
 
+// Current mode state
+let currentMode = 'single'; // 'single' | 'multi'
+let analysis = null;
+let firmwareBinary = null;
+/** @type {Map<number,number>|null} Parsed hex buffer for reconstruction at upload time */
+let hexMap = null;
+
+// Cached hex data for 3-file mode
+// Each entry: { binary: Uint8Array, analysis: HexAnalysis|null, name: string }
+let cachedHexData = { sd: null, bl: null, app: null };
+
+// ---------- Logging ----------
 function log(msg, cls = 'info') {
   const div = document.createElement('div');
   div.className = cls;
@@ -103,28 +189,92 @@ function setProgress(pct) {
   progressFill.style.width = Math.min(100, Math.max(0, pct)) + '%';
 }
 
-function setButtons(connecting, hasFile, uploading) {
+function setButtons(connecting, hasContent, uploading) {
   btnConnect.disabled = connecting || uploading;
   btnConnect.textContent = adapter ? 'Disconnect' : 'Connect Serial';
-  fileInput.disabled = uploading;
-  btnUpload.disabled = !adapter || !hasFile || uploading;
+  fileInput.disabled = uploading || currentMode === 'multi';
+  sdInput.disabled = uploading || currentMode === 'single';
+  blInput.disabled = uploading || currentMode === 'single';
+  appInput.disabled = uploading || currentMode === 'single';
+  btnUpload.disabled = !adapter || !hasContent || uploading;
 }
 
-// ---------- connect ----------
+function hasFirmwareContent() {
+  if (currentMode === 'single') {
+    return !!firmwareBinary;
+  } else {
+    return !!(cachedHexData.sd || cachedHexData.bl || cachedHexData.app);
+  }
+}
+
+/** Validate 3-file combination and return error message or null */
+function validateMultiFileCombination() {
+  const sd = cachedHexData.sd;
+  const bl = cachedHexData.bl;
+  const app = cachedHexData.app;
+
+  if (!sd && !bl && !app) return 'Select at least one firmware file';
+
+  // SoftDevice alone is not useful — it must match a specific bootloader
+  if (sd && !bl && !app) return 'SoftDevice alone cannot be updated — it must be paired with a matching Bootloader';
+
+  // Validate SD file: must be softdevice type
+  if (sd && sd.analysis && sd.analysis.type !== 'softdevice') {
+    return 'SoftDevice file must be a standalone SoftDevice .hex (got ' + sd.analysis.type + ')';
+  }
+
+  // Validate BL file: must be bootloader or sd_bl (combined)
+  if (bl && bl.analysis && bl.analysis.type !== 'bootloader' && bl.analysis.type !== 'sd_bl') {
+    return 'Bootloader file must be a standalone Bootloader or combined SD+BL .hex (got ' + bl.analysis.type + ')';
+  }
+
+  // Validate APP file: must be application type
+  if (app && app.analysis && app.analysis.type !== 'application') {
+    return 'Application file must be a standalone Application .hex (got ' + app.analysis.type + ')';
+  }
+
+  // If SD is given without BL, invalid
+  if (sd && !bl) return 'SoftDevice requires a matching Bootloader';
+
+  return null; // valid
+}
+
+// ---------- Mode toggle ----------
+modeSingle.addEventListener('click', () => {
+  if (currentMode === 'single') return;
+  currentMode = 'single';
+  modeSingle.classList.add('active');
+  modeMulti.classList.remove('active');
+  singlePanel.classList.remove('hidden');
+  multiPanel.classList.add('hidden');
+  setButtons(false, hasFirmwareContent(), false);
+});
+
+modeMulti.addEventListener('click', () => {
+  if (currentMode === 'multi') return;
+  currentMode = 'multi';
+  modeMulti.classList.add('active');
+  modeSingle.classList.remove('active');
+  multiPanel.classList.remove('hidden');
+  singlePanel.classList.add('hidden');
+  updateMultiFileInfo();
+  setButtons(false, hasFirmwareContent(), false);
+});
+
+// ---------- Connect ----------
 btnConnect.addEventListener('click', async () => {
   if (adapter) {
-    // disconnect
     try { await adapter.close(); } catch {}
     adapter = null;
     transport = null;
     connectStatus.textContent = 'Not connected';
     connectStatus.style.color = '#666';
-    setButtons(false, !!firmwareBinary, false);
+    setButtons(false, hasFirmwareContent(), false);
     log('Disconnected', 'warn');
     return;
   }
 
-  setButtons(true, !!firmwareBinary, false);
+  setButtons(true, hasFirmwareContent(), false);
   log('Requesting serial port...');
 
   try {
@@ -132,48 +282,185 @@ btnConnect.addEventListener('click', async () => {
     const selected = await adapter.requestPort();
     if (!selected) {
       log('No port selected', 'warn');
-      setButtons(false, !!firmwareBinary, false);
+      setButtons(false, hasFirmwareContent(), false);
       return;
     }
     await adapter.open({ baudRate: 115200 });
     transport = new DfuTransportSerial(adapter, { timeout: 3000 });
-    connectStatus.textContent = 'Connected ✔';
+    // Show port info
+    const portInfo = adapter.deviceInfo
+      ? `VID:0x${adapter.deviceInfo.usbVendorId.toString(16)} PID:0x${adapter.deviceInfo.usbProductId.toString(16)}`
+      : '';
+    connectStatus.textContent = 'Connected ✔' + (portInfo ? ' ' + portInfo : '');
     connectStatus.style.color = '#2ec4b6';
-    log('Serial port opened', 'ok');
-    setButtons(false, !!firmwareBinary, false);
+    log('Serial port opened' + (portInfo ? ' (' + portInfo + ')' : ''), 'ok');
+    setButtons(false, hasFirmwareContent(), false);
   } catch (err) {
     log('Connect failed: ' + err.message, 'err');
     adapter = null;
     transport = null;
-    setButtons(false, !!firmwareBinary, false);
+    setButtons(false, hasFirmwareContent(), false);
   }
 });
 
-// ---------- file pick ----------
-fileInput.addEventListener('change', () => {
+// ---------- Single file pick ----------
+fileInput.addEventListener('change', async () => {
   const file = fileInput.files[0];
   if (!file) {
     firmwareBinary = null;
-    firmwareName = '';
+    analysis = null;
+    hexMap = null;
     fileInfo.textContent = 'No file selected';
+    analysisInfo.innerHTML = '';
     setButtons(false, false, false);
     return;
   }
-  firmwareName = file.name;
   fileInfo.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-  setButtons(false, true, false);
+  analysisInfo.innerHTML = 'Analyzing...';
+
+  try {
+    const buf = await file.arrayBuffer();
+    const raw = new Uint8Array(buf);
+
+    if (file.name.endsWith('.hex')) {
+      const hexStr = new TextDecoder().decode(raw);
+      const parsed = parseHex(hexStr);
+      hexMap = parsed.buf; // store for reconstruction at upload time
+      analysis = analyzeHex(hexMap);
+      firmwareBinary = extractBinaryFromHex(hexMap);
+
+      // Build analysis display
+      const parts = [];
+      parts.push(`<div class="analysis-summary">`);
+      parts.push(`<strong>Auto-detected content:</strong><br>`);
+
+      if (analysis.type === 'application') {
+        parts.push(`<span class="badge badge-ok">Application only</span>`);
+        parts.push(` — ${(analysis.appSize / 1024).toFixed(1)} KB at 0x${analysis.appStart.toString(16)}`);
+      } else {
+        // Show type badge
+        const typeLabels = {
+          'sd_app': 'SoftDevice + Application',
+          'sd_bl': 'SoftDevice + Bootloader',
+          'sd_bl_app': 'SoftDevice + Bootloader + Application',
+          'softdevice': 'SoftDevice only',
+          'bootloader': 'Bootloader only',
+        };
+        parts.push(`<span class="badge badge-warn">${typeLabels[analysis.type] || analysis.type}</span><br>`);
+
+        if (analysis.sdName) {
+          parts.push(`<span class="row-label">SD:</span> ${analysis.sdName}`);
+          if (analysis.sdVersion) parts.push(` (v${analysis.sdVersion})`);
+          parts.push(` — ${(analysis.sdSize / 1024).toFixed(1)} KB<br>`);
+        }
+        if (analysis.appSize) {
+          parts.push(`<span class="row-label">APP:</span> ${(analysis.appSize / 1024).toFixed(1)} KB at 0x${analysis.appStart.toString(16)}<br>`);
+        }
+        if (analysis.blSize) {
+          parts.push(`<span class="row-label">BL:</span> ${(analysis.blSize / 1024).toFixed(1)} KB at 0x${analysis.blStart.toString(16)}<br>`);
+        }
+      }
+
+      parts.push(`<span class="row-label">MCU:</span> nRF52${analysis.mcu} &nbsp;|&nbsp; Total: ${(analysis.totalSize / 1024).toFixed(1)} KB`);
+      parts.push(`</div>`);
+      analysisInfo.innerHTML = parts.join('');
+
+      // Set MCU model from auto-detection
+      mcuSelect.value = String(analysis.mcu);
+      mcuAutoHint.textContent = '(auto-detected)';
+    } else {
+      // .bin file — no analysis possible
+      firmwareBinary = raw;
+      analysis = null;
+      analysisInfo.innerHTML = `<div class="analysis-summary"><span class="badge badge-info">Binary file</span> — ${(raw.length / 1024).toFixed(1)} KB (sent as application)</div>`;
+      mcuAutoHint.textContent = '(auto: 52840)';
+    }
+
+    setButtons(false, true, false);
+    log(`Loaded: ${file.name}`, 'ok');
+  } catch (err) {
+    analysisInfo.innerHTML = `<span style="color:#e63946;">Analysis failed: ${err.message}</span>`;
+    log('File error: ' + err.message, 'err');
+    setButtons(false, false, false);
+  }
 });
 
-// ---------- upload ----------
+// ---------- 3-file mode handlers ----------
+function describeHex(entry) {
+  if (!entry) return null;
+  const a = entry.analysis;
+  if (!a) return entry.name + ' (' + (entry.binary.length/1024).toFixed(1) + ' KB, binary)';
+  const parts = [entry.name, a.type.replace('_','+')];
+  if (a.sdName) parts.push(a.sdName);
+  if (a.sdVersionStr) parts.push('v' + a.sdVersionStr);
+  parts.push((entry.binary.length/1024).toFixed(1) + ' KB');
+  return parts.join(' ');
+}
+
+function updateMultiFileInfo() {
+  const parts = [];
+  const labels = { sd: 'SD', bl: 'BL', app: 'APP' };
+  for (const [key, label] of Object.entries(labels)) {
+    const e = cachedHexData[key];
+    if (e) parts.push(label + ': ' + describeHex(e));
+  }
+  if (parts.length === 0) {
+    multiFileInfo.textContent = 'Select at least one firmware file';
+  } else {
+    multiFileInfo.innerHTML = parts.join('<br>');
+  }
+  setButtons(false, hasFirmwareContent(), false);
+}
+
+async function handleMultiFileInput(input, key) {
+  const file = input.files[0];
+  if (!file) {
+    cachedHexData[key] = null;
+    updateMultiFileInfo();
+    return;
+  }
+  try {
+    const buf = await file.arrayBuffer();
+    const raw = new Uint8Array(buf);
+    let binary, entryAnalysis = null;
+    if (file.name.endsWith('.hex')) {
+      const hexStr = new TextDecoder().decode(raw);
+      const parsed = parseHex(hexStr);
+      const hexMap = parsed.buf;
+      entryAnalysis = analyzeHex(hexMap);
+      // Store the hex Map so we can reconstruct later
+      binary = entryAnalysis; // placeholder, will fix below
+      // For 3-file mode, store the full binary blob (extractBinaryFromHex)
+      // but we also need to store the hexMap for reconstruction
+      binary = extractBinaryFromHex(hexMap);
+      // Store hexMap alongside so we can reconstruct component-by-component
+      // Actually for 3-file mode we just use extractBinaryFromHex on each file
+    } else {
+      binary = raw;
+    }
+    cachedHexData[key] = { binary, analysis: entryAnalysis, name: file.name, hexMap: null };
+    // Also store hexMap for sd_bl type files that need component extraction
+    if (file.name.endsWith('.hex')) {
+      const hexStr = new TextDecoder().decode(await file.arrayBuffer());
+      const parsed = parseHex(hexStr);
+      cachedHexData[key].hexMap = parsed.buf;
+    }
+    log(`Loaded ${key}: ${describeHex(cachedHexData[key])}`, 'ok');
+  } catch (err) {
+    log(`Error loading ${key}: ${err.message}`, 'err');
+    cachedHexData[key] = null;
+  }
+  updateMultiFileInfo();
+}
+
+sdInput.addEventListener('change', () => handleMultiFileInput(sdInput, 'sd'));
+blInput.addEventListener('change', () => handleMultiFileInput(blInput, 'bl'));
+appInput.addEventListener('change', () => handleMultiFileInput(appInput, 'app'));
+
+// ---------- Upload ----------
 btnUpload.addEventListener('click', async () => {
   if (!adapter || !transport) {
     log('Connect to a serial port first', 'err');
-    return;
-  }
-
-  const file = fileInput.files[0];
-  if (!file) {
-    log('Select a firmware file first', 'err');
     return;
   }
 
@@ -188,49 +475,305 @@ btnUpload.addEventListener('click', async () => {
   });
 
   try {
-    // 1. Read & parse firmware
-    log('Reading firmware file...');
-    const buf = await file.arrayBuffer();
-    const raw = new Uint8Array(buf);
+    // ---- Determine firmware binary and parameters ----
+    let uploadBinary;
+    let mode;
+    let sdSize = 0, blSize = 0, appSize = 0;
+    let deviceRev;
+    let softdeviceReq;
+    // Hoisted for session building from either single or 3-file mode
+    let appBinFinal = null;
+    let firmwareParts = [];
 
-    let firmware;
-    if (file.name.endsWith('.hex')) {
-      const hexStr = new TextDecoder().decode(raw);
-      const { buf: hexMap } = parseHex(hexStr);
-      firmware = extractBinaryFromHex(hexMap);
-      log(`Parsed HEX → ${firmware.length} bytes binary (${(firmware.length/1024).toFixed(1)} KB)`, 'ok');
+    if (currentMode === 'single') {
+      // Use the single .hex
+      if (!firmwareBinary) {
+        log('No firmware loaded', 'err');
+        setButtons(false, false, false);
+        return;
+      }
+
+      if (analysis && analysis.type !== 'application' && hexMap) {
+        // For combined hex (SD+BL+APP), reconstruct as concatenated components
+        // matching the Python tool's approach, instead of using the padded blob.
+        sdSize = analysis.sdSize;
+        blSize = analysis.blSize;
+        appSize = analysis.appSize;
+        deviceRev = analysis.mcu;
+        // Use 0xFFFE (any SoftDevice) — the SD number from the info struct
+        // is NOT the firmware ID the bootloader matches against.
+        softdeviceReq = 0xfffe;
+
+        const sdBin = sdSize ? extractRegionBinary(hexMap, 0x1000, 0x1000 + sdSize - 1) : new Uint8Array(0);
+        const blBin = blSize ? extractRegionBinary(hexMap, analysis.blStart, analysis.blStart + blSize - 1) : new Uint8Array(0);
+        const appBin = appSize ? extractRegionBinary(hexMap, analysis.appStart, analysis.appStart + appSize - 1) : new Uint8Array(0);
+
+        uploadBinary = new Uint8Array(sdSize + blSize + appSize);
+        let off = 0;
+        if (sdBin.length) { uploadBinary.set(sdBin, off); off += sdBin.length; }
+        if (blBin.length) { uploadBinary.set(blBin, off); off += blBin.length; }
+        if (appBin.length) { uploadBinary.set(appBin, off); off += appBin.length; }
+
+        const typeLabels = {
+          'sd_app': 'SoftDevice + Application',
+          'sd_bl': 'SoftDevice + Bootloader',
+          'sd_bl_app': 'SoftDevice + Bootloader + Application',
+          'softdevice': 'SoftDevice only',
+          'bootloader': 'Bootloader only',
+        };
+        log(`Detected: ${typeLabels[analysis.type] || analysis.type}`, 'info');
+        log(`Reconstructed: SD=${(sdSize/1024).toFixed(1)}K BL=${(blSize/1024).toFixed(1)}K APP=${(appSize/1024).toFixed(1)}K → ${uploadBinary.length} bytes`, 'info');
+
+        if (analysis.type === 'sd_app') mode = DFU_UPDATE_MODE_SD | DFU_UPDATE_MODE_APP;
+        else if (analysis.type === 'sd_bl') mode = DFU_UPDATE_MODE_SD | DFU_UPDATE_MODE_BL;
+        else if (analysis.type === 'sd_bl_app') mode = DFU_UPDATE_MODE_SD | DFU_UPDATE_MODE_BL | DFU_UPDATE_MODE_APP;
+        else if (analysis.type === 'softdevice') mode = DFU_UPDATE_MODE_SD;
+        else if (analysis.type === 'bootloader') mode = DFU_UPDATE_MODE_BL;
+        else mode = DFU_UPDATE_MODE_APP;
+      } else {
+        // Application-only .hex or .bin — use the stored firmware binary as-is
+        uploadBinary = firmwareBinary;
+
+        if (analysis) {
+          sdSize = analysis.sdSize;
+          blSize = analysis.blSize;
+          appSize = analysis.appSize;
+          deviceRev = analysis.mcu;
+          softdeviceReq = 0xfffe;
+          log('Detected: Application only', 'info');
+          mode = DFU_UPDATE_MODE_APP;
+        } else {
+          // .bin file, treat as application
+          mode = DFU_UPDATE_MODE_APP;
+          appSize = uploadBinary.length;
+          deviceRev = parseInt(mcuSelect.value) || 52840;
+          softdeviceReq = 0xfffe;
+        }
+      }
     } else {
-      firmware = raw;
-      log(`Binary firmware: ${firmware.length} bytes`, 'ok');
+      // ---- 3-file mode: validate and build sessions ----
+      const sdEntry = cachedHexData.sd;
+      const blEntry = cachedHexData.bl;
+      const appEntry = cachedHexData.app;
+
+      if (!sdEntry && !blEntry && !appEntry) {
+        log('Select at least one firmware file', 'err');
+        setButtons(false, false, false);
+        return;
+      }
+
+      // Validate combinations
+      const err = validateMultiFileCombination();
+      if (err) { log('❌ ' + err, 'err'); setButtons(false, true, false); return; }
+
+      // Build session data
+      // If BL is combined sd_bl, extract components from its hexMap
+      let combinedSdBl = null;
+      if (blEntry && blEntry.analysis && blEntry.analysis.type === 'sd_bl') {
+        // Combined SD+BL hex in BL field — extract SD and BL portions
+        const a = blEntry.analysis;
+        const h = blEntry.hexMap;
+        const sdPart = a.sdSize ? extractRegionBinary(h, 0x1000, 0x1000 + a.sdSize - 1) : new Uint8Array(0);
+        const blPart = a.blSize ? extractRegionBinary(h, a.blStart, a.blStart + a.blSize - 1) : new Uint8Array(0);
+        combinedSdBl = new Uint8Array(a.sdSize + a.blSize);
+        combinedSdBl.set(sdPart, 0);
+        combinedSdBl.set(blPart, a.sdSize);
+        log(`BL file is combined SD+BL — extracted SD(${(a.sdSize/1024).toFixed(1)}K) + BL(${(a.blSize/1024).toFixed(1)}K)`, 'info');
+      }
+
+      // Determine SD binary: from SD field, or from combined BL if no SD field
+      let sdBinFinal = null;
+      let blBinFinal = null;
+      if (sdEntry) {
+        sdBinFinal = sdEntry.binary; // standalone SD binary
+      }
+      if (blEntry && blEntry.analysis && blEntry.analysis.type === 'sd_bl') {
+        // Combined SD+BL via BL field — this provides BOTH SD and BL
+        sdBinFinal = null; // don't use SD field if BL already provides it
+        blBinFinal = combinedSdBl; // combined [SD+BL] blob
+        // Mode needs both SD and BL bits since the firmware contains both
+        // (will be set in the mode-building section below)
+      } else if (blEntry) {
+        blBinFinal = blEntry.binary; // standalone BL binary
+      }
+      // appBinFinal is hoisted above; assign it here
+      appBinFinal = appEntry ? appEntry.binary : null;
+
+      // Build the combined firmware blob and mode
+      mode = 0;
+      firmwareParts = [];
+
+      // If BL file is a combined sd_bl, use its analysis for sizes
+      const blIsCombined = blEntry && blEntry.analysis && blEntry.analysis.type === 'sd_bl';
+
+      if (sdBinFinal) {
+        sdSize = sdBinFinal.length;
+        firmwareParts.push(sdBinFinal);
+        mode |= DFU_UPDATE_MODE_SD;
+      } else if (blIsCombined) {
+        // Combined SD+BL file provides both — use analysis sizes
+        sdSize = blEntry.analysis.sdSize;
+        mode |= DFU_UPDATE_MODE_SD;
+      } else {
+        sdSize = 0;
+      }
+
+      if (blBinFinal) {
+        if (blIsCombined) {
+          blSize = blEntry.analysis.blSize;
+        } else {
+          blSize = blBinFinal.length;
+        }
+        firmwareParts.push(blBinFinal);
+        mode |= DFU_UPDATE_MODE_BL;
+      } else {
+        blSize = 0;
+      }
+
+      if (appBinFinal) {
+        appSize = appBinFinal.length;
+      } else {
+        appSize = 0;
+      }
+
+      // Concatenate firmware parts for the first session(s)
+      const totalPayload = firmwareParts.reduce((sum, p) => sum + p.length, 0);
+      uploadBinary = new Uint8Array(totalPayload);
+      let offset = 0;
+      for (const p of firmwareParts) {
+        uploadBinary.set(p, offset);
+        offset += p.length;
+      }
+
+      deviceRev = parseInt(mcuSelect.value) || 52840;
+      softdeviceReq = 0xfffe;
+      log(`3-file: mode=0x${mode.toString(16)} payload=${(totalPayload/1024).toFixed(1)}KB`, 'info');
     }
 
-    // 2. Generate init packet
-    const initPacket = generateMinimalInitPacket(firmware);
-    log(`Init packet generated: ${initPacket.length} bytes`, 'ok');
+    // Override MCU from dropdown if user changed it
+    const userMcu = parseInt(mcuSelect.value);
+    if (userMcu) deviceRev = userMcu;
 
-    // 3. Send DFU start
-    log('Sending DFU start packet...');
-    await transport.sendStartDfu(DFU_UPDATE_MODE_APP, 0, 0, firmware.length);
+    // ---- Build session plan ----
+    // SD+BL+APP must be split: bootloader update requires a reboot between
+    // SD+BL and APP sessions.
+    const sessions = [];
 
-    // 4. Send init packet
-    log('Sending init packet...');
-    await transport.sendInitPacket(initPacket);
+    if (currentMode === 'single' && analysis && analysis.type === 'sd_bl_app') {
+      // Single .hex mode: split from analysis
+      const sdBin = extractRegionBinary(hexMap, 0x1000, 0x1000 + analysis.sdSize - 1);
+      const blBin = extractRegionBinary(hexMap, analysis.blStart, analysis.blStart + analysis.blSize - 1);
+      const appBin = extractRegionBinary(hexMap, analysis.appStart, analysis.appStart + analysis.appSize - 1);
 
-    // 5. Send firmware
-    log('Sending firmware...');
-    await transport.sendFirmware(firmware);
+      const sdBlFw = new Uint8Array(analysis.sdSize + analysis.blSize);
+      sdBlFw.set(sdBin, 0);
+      sdBlFw.set(blBin, analysis.sdSize);
 
-    // 6. Activate
-    log('Activating firmware...', 'warn');
-    await transport.sendActivateFirmware();
+      sessions.push({mode: DFU_UPDATE_MODE_SD | DFU_UPDATE_MODE_BL, fw: sdBlFw,
+        sdSize: analysis.sdSize, blSize: analysis.blSize, appSize: 0,
+        label: 'SoftDevice + Bootloader'});
+      sessions.push({mode: DFU_UPDATE_MODE_APP, fw: appBin,
+        sdSize: 0, blSize: 0, appSize: analysis.appSize,
+        label: 'Application'});
+      log('Split into 2 sessions: [SD+BL] → [APP]', 'info');
+      deviceRev = analysis.mcu;
 
-    const waitTime = transport.getActivateWaitTime();
-    log(`Waiting ${waitTime.toFixed(1)}s for activation...`, 'warn');
-    await new Promise(r => setTimeout(r, waitTime * 1000));
+    } else if (currentMode === 'multi' && appBinFinal && firmwareParts.length > 0) {
+      // 3-file mode: SD/BL in first session (already concatenated), APP in second
+      sessions.push({mode, fw: uploadBinary,
+        sdSize, blSize, appSize: 0,
+        label: 'SoftDevice + Bootloader'});
+      sessions.push({mode: DFU_UPDATE_MODE_APP, fw: appBinFinal,
+        sdSize: 0, blSize: 0, appSize: appBinFinal.length,
+        label: 'Application'});
+      log('Split into 2 sessions: [SD+BL] → [APP]', 'info');
+
+    } else {
+      // Single session
+      sessions.push({mode, fw: uploadBinary, sdSize, blSize, appSize,
+        label: 'firmware'});
+    }
+
+    // ---- Run sessions ----
+    for (let s = 0; s < sessions.length; s++) {
+      const {mode: sMode, fw: sFw, sdSize: sSd, blSize: sBl, appSize: sApp, label} = sessions[s];
+
+      log(`\n--- Session ${s+1}/${sessions.length}: ${label} ---`, 'info');
+
+      if (s > 0) {
+        // Reconnect for next session (device rebooted after activation).
+        // The USB device briefly disappears during reboot — retry with
+        // a 10-second timeout, matching the Python tool's _wait_while_opening_transport.
+        log('Waiting for device to reappear after reboot...', 'warn');
+        try { await adapter.close(); } catch {}
+        let opened = false;
+        const reopenStart = Date.now();
+        const reopenTimeout = 10000; // 10s
+        while (!opened && Date.now() - reopenStart < reopenTimeout) {
+          // First try reopening the same port (fast path if port # didn't change)
+          try {
+            await adapter.open({ baudRate: 115200, useDtrReset: false });
+            opened = true;
+            break;
+          } catch {}
+          // If that fails, the port # may have changed — find by USB VID/PID
+          if (adapter.deviceInfo) {
+            const { usbVendorId, usbProductId } = adapter.deviceInfo;
+            const found = await adapter.findPortByVidPid(usbVendorId, usbProductId);
+            if (found) {
+              try {
+                await adapter.open({ baudRate: 115200, useDtrReset: false });
+                opened = true;
+                break;
+              } catch {}
+            }
+          }
+          // Device not available yet — wait and retry
+          await new Promise(r => setTimeout(r, 300));
+        }
+        if (!opened) {
+          throw new Error('Device did not reappear within 10s after reboot');
+        }
+        transport = new DfuTransportSerial(adapter, { timeout: 3000 });
+        transport.registerEventsCallback(DfuEvent.PROGRESS_EVENT, ({ progress }) => {
+          setProgress(progress);
+        });
+        log('Reconnected', 'ok');
+      }
+
+      const initPkt = generateMinimalInitPacket(sFw, {
+        deviceType: 0x0052,
+        deviceRev: deviceRev,
+        appVersion: 0xFFFFFFFF,
+        softdeviceReq: [0xfffe],
+      });
+      log(`Init packet: ${initPkt.length} bytes`, 'ok');
+
+      log('Sending DFU start packet...');
+      await transport.sendStartDfu(sMode, sSd, sBl, sApp);
+      log('  ✓ Start packet sent', 'ok');
+
+      log('Sending init packet...');
+      await transport.sendInitPacket(initPkt);
+      log('  ✓ Init packet sent', 'ok');
+
+      log('Sending firmware...');
+      await transport.sendFirmware(sFw);
+      log('  ✓ Firmware sent', 'ok');
+
+      log('Activating firmware...', 'warn');
+      await transport.sendActivateFirmware();
+
+      const waitTime = transport.getActivateWaitTime();
+      log(`Waiting ${waitTime.toFixed(1)}s for activation...`, 'warn');
+      await new Promise(r => setTimeout(r, waitTime * 1000));
+
+      log(`✅ Session ${s+1} complete: ${label}`, 'ok');
+    }
 
     setProgress(100);
     log('');
-    log('✅ Firmware uploaded successfully!', 'ok');
+    log('✅ All firmware uploaded successfully!', 'ok');
     log('The board will reset and run the new firmware.', 'info');
 
   } catch (err) {

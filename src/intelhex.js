@@ -250,6 +250,28 @@ export function extractBinaryFromHex(buf) {
 }
 
 /**
+ * Extract a specific address range from the parsed HEX buffer into a flat binary.
+ * The range is word-aligned (padded with 0xFF).
+ *
+ * @param {Map<number, number>} buf - Address→byte map from parseHex()
+ * @param {number} startAddr - Start address (inclusive)
+ * @param {number} endAddr - End address (inclusive)
+ * @returns {Uint8Array}
+ */
+export function extractRegionBinary(buf, startAddr, endAddr) {
+  const rawSize = endAddr - startAddr + 1;
+  if (rawSize <= 0) return new Uint8Array(0);
+  const wordSize = 4;
+  const paddedSize = Math.ceil(rawSize / wordSize) * wordSize;
+  const result = new Uint8Array(paddedSize);
+  for (let i = 0; i < paddedSize; i++) {
+    const addr = startAddr + i;
+    result[i] = buf.has(addr) ? buf.get(addr) : 0xff;
+  }
+  return result;
+}
+
+/**
  * Find the minimum address for binary extraction, skipping the MBR region.
  *
  * @param {Map<number, number>} buf

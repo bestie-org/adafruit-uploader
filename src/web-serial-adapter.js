@@ -22,6 +22,8 @@ export class WebSerialAdapter {
     this.reader = null;
     /** @type {WritableStreamDefaultWriter|null} */
     this.writer = null;
+    /** @type {{ usbVendorId: number, usbProductId: number }|null} */
+    this.deviceInfo = null;
   }
 
   /**
@@ -64,6 +66,11 @@ export class WebSerialAdapter {
     const useDtrReset = options.useDtrReset !== false;
 
     await this.port.open({ baudRate });
+
+    // Remember USB VID/PID for reconnection after reboot
+    try {
+      this.deviceInfo = this.port.getInfo();
+    } catch {}
 
     // Set up streams
     this.reader = this.port.readable.getReader();
@@ -120,6 +127,30 @@ export class WebSerialAdapter {
       // If the stream is closed/cancelled, return empty
       return new Uint8Array(0);
     }
+  }
+
+  /**
+   * Find a serial port by USB vendor/product ID from the list of
+   * previously-authorized ports. Used to re-connect after a reboot
+   * that may change the OS port number.
+   *
+   * @param {number} usbVendorId
+   * @param {number} usbProductId
+   * @returns {Promise<boolean>} true if a matching port was found
+   */
+  async findPortByVidPid(usbVendorId, usbProductId) {
+    if (!navigator.serial) return false;
+    const ports = await navigator.serial.getPorts();
+    for (const p of ports) {
+      try {
+        const info = p.getInfo();
+        if (info.usbVendorId === usbVendorId && info.usbProductId === usbProductId) {
+          this.port = p;
+          return true;
+        }
+      } catch {}
+    }
+    return false;
   }
 
   /**

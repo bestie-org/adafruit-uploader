@@ -49,6 +49,10 @@ const SD_BUILD_MAP = {
   // S132 builds
   0x00B7: '6.1.1',
   0x0124: '7.3.0',
+  // S332 builds
+  0x00CF: '7.0.1',
+  // S340 builds
+  0x00CE: '7.0.1',
 };
 
 const MBR_SIZE = 0x1000;

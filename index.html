@@ -336,7 +336,7 @@ fileInput.addEventListener('change', async () => {
 
       if (analysis.type === 'application') {
         parts.push(`<span class="badge badge-ok">Application only</span>`);
-        parts.push(` — ${(analysis.appSize / 1024).toFixed(1)} KB at 0x${analysis.appStart.toString(16)}`);
+        parts.push(` — ${(analysis.appSize / 1024).toFixed(1)} KB at 0x${analysis.appStart.toString(16)}<br>`);
       } else {
         // Show type badge
         const typeLabels = {
@@ -350,7 +350,8 @@ fileInput.addEventListener('change', async () => {
 
         if (analysis.sdName) {
           parts.push(`<span class="row-label">SD:</span> ${analysis.sdName}`);
-          if (analysis.sdVersion) parts.push(` (v${analysis.sdVersion})`);
+          if (analysis.sdVersionStr) parts.push(` (v${analysis.sdVersionStr})`);
+          else if (analysis.sdVersion) parts.push(` (build=0x${analysis.sdVersion.toString(16)})`);
           parts.push(` — ${(analysis.sdSize / 1024).toFixed(1)} KB<br>`);
         }
         if (analysis.appSize) {
@@ -361,7 +362,7 @@ fileInput.addEventListener('change', async () => {
         }
       }
 
-      parts.push(`<span class="row-label">MCU:</span> nRF52${analysis.mcu} &nbsp;|&nbsp; Total: ${(analysis.totalSize / 1024).toFixed(1)} KB`);
+      parts.push(`<span class="row-label">MCU:</span> nRF${analysis.mcu} &nbsp;|&nbsp; Total: ${(analysis.totalSize / 1024).toFixed(1)} KB`);
       parts.push(`</div>`);
       analysisInfo.innerHTML = parts.join('');
 

@@ -72,6 +72,12 @@
     <button id="btnConnect" class="btn-primary">Connect Serial</button>
     <span id="connectStatus" style="font-size:0.85rem;color:#666;">Not connected</span>
   </div>
+  <div class="row" style="margin-top:6px;">
+    <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;margin-bottom:0;">
+      <input type="checkbox" id="filterBypass">
+      Show all serial ports (skip board filtering)
+    </label>
+  </div>
 </div>
 
 <div class="card">
@@ -162,9 +168,37 @@ const multiFileInfo = $('multiFileInfo');
 const mcuSelect     = $('mcuSelect');
 const mcuAutoHint   = $('mcuAutoHint');
 const mcuContainer  = $('mcuModelContainer');
+const filterBypass  = $('filterBypass');
 
 let adapter = null;
 let transport = null;
+let boardFilters = [];        // [{usbVendorId, usbProductId}, ...]
+let boardLookup = new Map();   // "vid:pid" → string[] (handles collisions)
+let boardDataPromise = null;   // resolved when fetch completes (or fails)
+
+// ---------- Board database ----------
+function loadBoardData() {
+  boardDataPromise = (async () => {
+    try {
+      const resp = await fetch('board_db.json');
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const boards = await resp.json();
+      for (const board of boards) {
+        for (const pid of board.pids) {
+          boardFilters.push({ usbVendorId: board.usb_vid, usbProductId: pid });
+          const key = `${board.usb_vid}:${pid}`;
+          if (!boardLookup.has(key)) boardLookup.set(key, []);
+          boardLookup.get(key).push(board.product_name);
+        }
+      }
+      const totalPids = boardFilters.length;
+      log(`Loaded ${boards.length} boards → ${boardLookup.size} unique VID:PID profiles (${totalPids} total PID entries)`, 'debug');
+    } catch (err) {
+      log('Could not load board database: ' + err.message + ' — filtering disabled', 'warn');
+      boardFilters = [];
+    }
+  })();
+}
 
 // Current mode state
 let currentMode = 'single'; // 'single' | 'multi'
@@ -294,9 +328,18 @@ btnConnect.addEventListener('click', async () => {
   setButtons(true, hasFirmwareContent(), false);
   log('Requesting serial port...');
 
-  try {
+   try {
     adapter = new WebSerialAdapter();
-    const selected = await adapter.requestPort();
+
+    // Ensure board data is loaded before checking filters
+    await boardDataPromise;
+
+    // Use board filter unless user checked "Show all"
+    const useFilter = !filterBypass.checked && boardFilters.length > 0;
+    const selected = useFilter
+      ? await adapter.requestPort(boardFilters)
+      : await adapter.requestPort();
+
     if (!selected) {
       log('No port selected', 'warn');
       setButtons(false, hasFirmwareContent(), false);
@@ -304,13 +347,31 @@ btnConnect.addEventListener('click', async () => {
     }
     await adapter.open({ baudRate: 115200 });
     transport = new DfuTransportSerial(adapter, { timeout: 3000 });
-    // Show port info
+
+    // Build VID/PID string
     const portInfo = adapter.deviceInfo
       ? `VID:0x${adapter.deviceInfo.usbVendorId.toString(16)} PID:0x${adapter.deviceInfo.usbProductId.toString(16)}`
       : '';
-    connectStatus.textContent = 'Connected ✔' + (portInfo ? ' ' + portInfo : '');
-    connectStatus.style.color = '#2ec4b6';
+
+    // Look up board name(s) — handle VID/PID collisions
+    let boardNames = null;
+    if (adapter.deviceInfo) {
+      const key = `${adapter.deviceInfo.usbVendorId}:${adapter.deviceInfo.usbProductId}`;
+      boardNames = boardLookup.get(key) || null;
+    }
+
+    if (boardNames && boardNames.length > 0) {
+      const nameStr = boardNames.join(' / ');
+      log('Detected board: ' + nameStr, 'info');
+    } else if (adapter.deviceInfo) {
+      log('Detected board: Unknown' + (portInfo ? ' (' + portInfo + ')' : ''), 'warn');
+    }
     log('Serial port opened' + (portInfo ? ' (' + portInfo + ')' : ''), 'ok');
+
+    connectStatus.textContent = (boardNames && boardNames.length > 0)
+      ? 'Connected to ' + boardNames.join(' / ') + (portInfo ? ' ' + portInfo : '')
+      : 'Connected ✔' + (portInfo ? ' ' + portInfo : '');
+    connectStatus.style.color = '#2ec4b6';
     setButtons(false, hasFirmwareContent(), false);
   } catch (err) {
     log('Connect failed: ' + err.message, 'err');
@@ -804,6 +865,9 @@ btnUpload.addEventListener('click', async () => {
     setButtons(false, true, false);
   }
 });
+
+// ---------- Startup ----------
+loadBoardData();
 </script>
 </body>
 </html>

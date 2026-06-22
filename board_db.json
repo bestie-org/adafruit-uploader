@@ -1,0 +1,453 @@
+[
+  {
+    "bootloader_name": "adm_b_nrf52840_1",
+    "board_id": "ADM_B_NRF52840_1",
+    "product_name": "AtelierDuMaker NRF52840 Breakout",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      159
+    ]
+  },
+  {
+    "bootloader_name": "aramcon2_badge",
+    "board_id": "nrf52840-ARAMCON2-Badge",
+    "product_name": "ARAMCON2 Badge",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      123
+    ]
+  },
+  {
+    "bootloader_name": "aramcon_badge_2019",
+    "board_id": "nrf52840-ARAMCON-Badge-2019",
+    "product_name": "ARAMCON Badge 2019",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      121
+    ]
+  },
+  {
+    "bootloader_name": "arduino_nano_33_ble",
+    "board_id": "nRF52840-Nano-33",
+    "product_name": "Arduino Nano 33 BLE",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      99,
+      100
+    ]
+  },
+  {
+    "bootloader_name": "bast_ble",
+    "board_id": "Bast-ble-v1",
+    "product_name": "Bast BLE",
+    "mcu": "nrf52840",
+    "usb_vid": 4617,
+    "pids": [
+      32858
+    ]
+  },
+  {
+    "bootloader_name": "bluemicro_nrf52833",
+    "board_id": "nRF52833-BlueMicro-v1",
+    "product_name": "BlueMicro",
+    "mcu": "nrf52833",
+    "usb_vid": 7504,
+    "pids": [
+      24943
+    ]
+  },
+  {
+    "bootloader_name": "bluemicro_nrf52840",
+    "board_id": "nRF52840-BlueMicro-v1",
+    "product_name": "BlueMicro",
+    "mcu": "nrf52840",
+    "usb_vid": 7504,
+    "pids": [
+      24928
+    ]
+  },
+  {
+    "bootloader_name": "challenger_840_ble",
+    "board_id": "nRF52840-Challenger-840",
+    "product_name": "ILabs Challenger 840",
+    "mcu": "nrf52840",
+    "usb_vid": 4617,
+    "pids": [
+      29568,
+      29569
+    ]
+  },
+  {
+    "bootloader_name": "circuitplayground_nrf52840",
+    "board_id": "nRF52840-CircuitPlayground-revD",
+    "product_name": "Adafruit Circuit Playground nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      69
+    ]
+  },
+  {
+    "bootloader_name": "clue_nrf52840",
+    "board_id": "nRF52840-CLUE-revA",
+    "product_name": "Adafruit CLUE nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      113
+    ]
+  },
+  {
+    "bootloader_name": "electronut_labs_papyr",
+    "board_id": "nRF52840-Papyr-v1",
+    "product_name": "Electronut Labs Papyr",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      59
+    ]
+  },
+  {
+    "bootloader_name": "feather_nrf52840_express",
+    "board_id": "nRF52840-Feather-revE",
+    "product_name": "Adafruit Feather nRF52840 Express",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      41,
+      42
+    ]
+  },
+  {
+    "bootloader_name": "feather_nrf52840_sense",
+    "board_id": "nRF52840-Feather-Sense",
+    "product_name": "Adafruit Feather nRF52840 Sense",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      135,
+      136
+    ]
+  },
+  {
+    "bootloader_name": "feather_nrf52840_sense_tft",
+    "board_id": "nRF52840-FeatherSenseTFT-revA",
+    "product_name": "Adafruit Feather nRF52840 Sense TFT",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      135,
+      136
+    ]
+  },
+  {
+    "bootloader_name": "ikigaisense_vita",
+    "board_id": "nRF52840-isVITA-revA",
+    "product_name": "IkigaiSense Vita nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      147
+    ]
+  },
+  {
+    "bootloader_name": "itsybitsy_nrf52840_express",
+    "board_id": "nRF52840-ItsyBitsy-revA",
+    "product_name": "Adafruit ItsyBitsy nRF52840 Express",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      81,
+      82
+    ]
+  },
+  {
+    "bootloader_name": "ledglasses_nrf52840",
+    "board_id": "nRF52840-LedGlasses-revA",
+    "product_name": "Adafruit LED Glasses Driver nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      269,
+      270
+    ]
+  },
+  {
+    "bootloader_name": "m60_keyboard",
+    "board_id": "M60KEYBOARD",
+    "product_name": "MakerDiary M60 Mechanical Keyboard",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      61455
+    ]
+  },
+  {
+    "bootloader_name": "mdk_nrf52840_dongle",
+    "board_id": "nRF52840-Dongle-v1",
+    "product_name": "MDK nRF52840 USB Dongle",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      41
+    ]
+  },
+  {
+    "bootloader_name": "metro_nrf52840_express",
+    "board_id": "nRF52840-Metro-revA",
+    "product_name": "Adafruit Metro nRF52840 Express",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      63,
+      64
+    ]
+  },
+  {
+    "bootloader_name": "mikoto",
+    "board_id": "nRF52840-mikoto-rev520",
+    "product_name": "Mikoto nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 4617,
+    "pids": [
+      31233
+    ]
+  },
+  {
+    "bootloader_name": "nRF52840_connect_kit",
+    "board_id": "nRF52840-Connect-Kit",
+    "product_name": "nRF52840 Connect Kit",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      61455
+    ]
+  },
+  {
+    "bootloader_name": "nice_nano",
+    "board_id": "nRF52840-nicenano",
+    "product_name": "nice!nano",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      179
+    ]
+  },
+  {
+    "bootloader_name": "nrf52840_bboard",
+    "board_id": "nRF52840-BBoard-rev2",
+    "product_name": "nRF52840 BBoard",
+    "mcu": "nrf52840",
+    "usb_vid": 7504,
+    "pids": [
+      24919
+    ]
+  },
+  {
+    "bootloader_name": "nrf52840_m2",
+    "board_id": "nRF52840M2",
+    "product_name": "MakerDiary nRF52840 M.2 Module",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      61455
+    ]
+  },
+  {
+    "bootloader_name": "nrfmicro",
+    "board_id": "nRF52840-nRFMicro-v0",
+    "product_name": "nRFMicro",
+    "mcu": "nrf52840",
+    "usb_vid": 4617,
+    "pids": [
+      21124
+    ]
+  },
+  {
+    "bootloader_name": "ohs2020_badge",
+    "board_id": "OHS2020-Badge-revA",
+    "product_name": "OHS2020 Badge",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      127
+    ]
+  },
+  {
+    "bootloader_name": "omnimo_nrf52840",
+    "board_id": "nRF52840-Omnimo",
+    "product_name": "Omnimo nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 4617,
+    "pids": [
+      52942
+    ]
+  },
+  {
+    "bootloader_name": "particle_argon",
+    "board_id": "nRF52840-Argon-v1",
+    "product_name": "Particle Argon",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      218
+    ]
+  },
+  {
+    "bootloader_name": "particle_boron",
+    "board_id": "nRF52840-Boron-v1",
+    "product_name": "Particle Boron",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      218
+    ]
+  },
+  {
+    "bootloader_name": "particle_xenon",
+    "board_id": "nRF52840-Xenon-v1",
+    "product_name": "Particle Xenon",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      218
+    ]
+  },
+  {
+    "bootloader_name": "pca10056",
+    "board_id": "nRF52840-pca10056-v1",
+    "product_name": "Nordic nRF52840 DK",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      218
+    ]
+  },
+  {
+    "bootloader_name": "pca10059",
+    "board_id": "nRF52840-pca10059-v1",
+    "product_name": "Nordic nRF52840 Dongle",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      41
+    ]
+  },
+  {
+    "bootloader_name": "pca10100",
+    "board_id": "nRF52833-pca10100-v1",
+    "product_name": "Nordic nRF52833 DK",
+    "mcu": "nrf52833",
+    "usb_vid": 9114,
+    "pids": [
+      216
+    ]
+  },
+  {
+    "bootloader_name": "pillbug",
+    "board_id": "nRF52840-PillBug",
+    "product_name": "PillBug",
+    "mcu": "nrf52840",
+    "usb_vid": 5840,
+    "pids": [
+      4333
+    ]
+  },
+  {
+    "bootloader_name": "pitaya_go",
+    "board_id": "PITAYAGO",
+    "product_name": "Pitaya Go",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      61454
+    ]
+  },
+  {
+    "bootloader_name": "raytac_mdbt50q_db_40",
+    "board_id": "nRF52840-MDBT50Q-1MV2",
+    "product_name": "Raytac MDBT50Q Demo Board 40",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      187
+    ]
+  },
+  {
+    "bootloader_name": "raytac_mdbt50q_rx",
+    "board_id": "nRF52840-MDBT50Q_RX-verD",
+    "product_name": "Raytac MDBT50Q-RX",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      267
+    ]
+  },
+  {
+    "bootloader_name": "sparkfun_nrf52840_micromod",
+    "board_id": "nRF52840-micromod-v10",
+    "product_name": "SparkFun MicroMod nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 6991,
+    "pids": [
+      34,
+      35
+    ]
+  },
+  {
+    "bootloader_name": "syldra",
+    "board_id": "nRF52840-Syldra-dev-v1",
+    "product_name": "Syldra nrf52840 Development Board",
+    "mcu": "nrf52840",
+    "usb_vid": 4617,
+    "pids": [
+      1,
+      31233
+    ]
+  },
+  {
+    "bootloader_name": "t1000_e",
+    "board_id": "nRF52840-T1000-E-v1",
+    "product_name": "Seeed T1000-E for Meshtastic",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      87
+    ]
+  },
+  {
+    "bootloader_name": "waveshare_nrf52840_eval",
+    "board_id": "WS-nRF52840-EVK",
+    "product_name": "Waveshare nRF52840 Eval",
+    "mcu": "nrf52840",
+    "usb_vid": 9114,
+    "pids": [
+      41,
+      42
+    ]
+  },
+  {
+    "bootloader_name": "xiao_nrf52840_ble",
+    "board_id": "nRF52840-SeeedXiao-v1",
+    "product_name": "Seeed XIAO nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      68
+    ]
+  },
+  {
+    "bootloader_name": "xiao_nrf52840_ble_sense",
+    "board_id": "nRF52840-SeeedXiaoSense-v1",
+    "product_name": "Seeed XIAO nRF52840",
+    "mcu": "nrf52840",
+    "usb_vid": 10374,
+    "pids": [
+      69
+    ]
+  }
+]
